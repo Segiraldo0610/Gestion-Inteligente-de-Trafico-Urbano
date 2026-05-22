@@ -1,0 +1,23 @@
+{
+  "pc1": {
+    "host": "10.43.99.126",
+    "role": "sensores_broker"
+  },
+  "pc2": {
+    "host": "10.43.99.140",
+    "role": "analitica_control_replica"
+  },
+  "pc3": {
+    "host": "10.43.99.109",
+    "role": "bd_principal_monitoreo"
+  },
+  "ports": {
+    "sensor_to_broker": 5555,
+    "broker_to_analitica": 5556,
+    "analitica_to_db_principal": 5557,
+    "analitica_to_db_replica": 5558,
+    "analitica_to_semaforos": 5559,
+    "monitoreo_to_analitica": 5560,
+    "healthcheck": 5561
+  }
+}
