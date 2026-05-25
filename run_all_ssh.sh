@@ -6,7 +6,7 @@ PC1_IP=$(python3 -c "import json; print(json.load(open('$CONFIG'))['pc1']['host'
 PC2_IP=$(python3 -c "import json; print(json.load(open('$CONFIG'))['pc2']['host'])")
 PC3_IP=$(python3 -c "import json; print(json.load(open('$CONFIG'))['pc3']['host'])")
 
-USER="estudiate"
+USER="estudiante"
 PROJECT_PATH="~/trafico_urbano"
 
 echo "🚦 Iniciando sistema distribuido..."
