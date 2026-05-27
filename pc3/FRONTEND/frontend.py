@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Frontend web (PC3).
-Servidor HTTP minimalista (stdlib pura, sin Flask).
+Servidor HTTP.
 Expone:
   GET /          → dashboard HTML
   GET /api/estado → JSON con estado de las 9 intersecciones
