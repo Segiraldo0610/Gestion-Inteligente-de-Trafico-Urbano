@@ -89,7 +89,7 @@ def main():
     try:
         while True:
             # En cada ciclo, simula y envía los datos de todas las esquinas/intersecciones
-            for interseccion in intersections:
+            for interseccion in intersecciones:
                 # Construye un identificador único para el sensor (ej: "cam_i1")
                 sensor_id = f"cam_{interseccion.lower()}"
                 
