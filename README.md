@@ -175,15 +175,40 @@ python monitoreo.py
 
 🧪 Flujo del sistema
 ```bash
-Sensores (PC1)
-    ↓
-Broker
-    ↓
-Analítica (PC2)
-    ↓
- ┌──────────────┬──────────────┐
- ↓              ↓              ↓
-Semáforos   BD réplica     PC3 monitoreo
+        ┌───────────────────────────┐
+        │         PC1               │
+        │      (Sensores)           │
+        │                           │
+        │  - GPS                    │
+        │  - Cámara                 │
+        │  - Espiras                │
+        └────────────┬──────────────┘
+                     │
+                     │ Datos de tráfico
+                     ▼
+        ┌───────────────────────────┐
+        │        BROKER             │
+        │   (Comunicación / Cola)   │
+        └────────────┬──────────────┘
+                     │
+                     ▼
+        ┌───────────────────────────┐
+        │         PC2               │
+        │     (Procesamiento)       │
+        │                           │
+        │  - Analítica de tráfico   │
+        │  - Control semáforos      │
+        └────────────┬──────────────┘
+                     │
+                     │ Decisiones / eventos
+                     ▼
+        ┌───────────────────────────┐
+        │         PC3               │
+        │   (BD + Monitoreo)        │
+        │                           │
+        │  - Base de datos          │
+        │  - Visualización          │
+        └───────────────────────────┘
 ```
 
 ## Autores
