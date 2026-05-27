@@ -164,8 +164,17 @@ trafico_urbano/
 ## Ejecución
 
 ### Requisitos
+```bash
+- # Crear entorno virtual
+python3 -m venv .venv
 
-- Python 3.10+ en cada PC
+# Activar entorno virtual
+source .venv/bin/activate
+
+# Instalar dependencias
+python3 -m pip install "pyzmq>=26.0.0,<27.0.0"
+```
+
 - Red local con los puertos 5555–5561 y 8080 abiertos
 
 ### Paso 1 — Clonar el repositorio en los 3 PCs
