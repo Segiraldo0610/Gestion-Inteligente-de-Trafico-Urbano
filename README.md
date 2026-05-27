@@ -165,7 +165,10 @@ trafico_urbano/
 
 ### Requisitos
 ```bash
-- # Crear entorno virtual
+sudo apt update
+sudo apt install python3-venv
+
+# Crear entorno virtual
 python3 -m venv .venv
 
 # Activar entorno virtual
