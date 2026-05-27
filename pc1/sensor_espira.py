@@ -96,7 +96,7 @@ def main():
     try:
         while True:
             # Recorre todas las intersecciones del mapa urbano
-            for interseccion in intersections:
+            for interseccion in intersecciones:
                 # Genera el identificador único string para la espira (ej: "espira_i1")
                 sensor_id = f"espira_{interseccion.lower()}"
                 
