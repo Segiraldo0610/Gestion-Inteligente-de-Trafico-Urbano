@@ -17,64 +17,61 @@ Arquitectura de 3 nodos con comunicación ZeroMQ, persistencia SQLite y failover
 flowchart LR
 
 %% =======================
-%% PC1 - INGESTA + BROKER
+%% PC1 - INGESTA + BROKER (A la izquierda)
 %% =======================
 subgraph PC1["Computadora 1 (10.43.99.126) - Ingesta"]
-    cam["sensor_camara"]
-    esp["sensor_espira"]
-    gps["sensor_gps"]
-    broker["Broker ZMQ\n(Ingesta de datos)"]
+    direction TB
+    cam["sensor_camara.py"]
+    esp["sensor_espira.py"]
+    gps["sensor_gps.py"]
+    broker["broker.py (Broker ZMQ)"]
+    
+    cam -->|ZMQ PUB/SUB| broker
+    esp -->|ZMQ PUB/SUB| broker
+    gps -->|ZMQ PUB/SUB| broker
 end
 
 %% =======================
-%% PC2 - ANALÍTICA + CONTROL
+%% PC2 - ANALÍTICA + CONTROL (Al centro)
 %% =======================
 subgraph PC2["Computadora 2 (10.43.99.140) - Procesamiento"]
-    analitica["Servicio de Analítica\n(Detección de congestión)"]
-    semaforos["Control de Semáforos"]
-    replica["BD Réplica"]
+    direction TB
+    analitica["analitica.py (Servicio de Analítica)"]
+    semaforos["control_semaforos.py"]
+    replica["bd_replica.py (BD Réplica)"]
+    hc["health_check.py"]
+    
+    analitica -->|ZMQ PUSH/PULL| semaforos
+    analitica -->|ZMQ PUSH/PULL| replica
+    hc -.->|Ping TCP & ZMQ PUB| analitica
 end
 
 %% =======================
-%% PC3 - BD + MONITOREO
+%% PC3 - BD + MONITOREO (A la derecha)
 %% =======================
-subgraph PC3["Computadora 3 (10.43.99.109) - Backend"]
-    db["Base de Datos (persistencia)"]
-    monitoreo["Monitoreo y consulta"]
-    frontend["Frontend (Dashboard)"]
+subgraph PC3["Computadora 3 (10.43.99.109) - Backend & UI"]
+    direction TB
+    client["cliente_monitoreo.py / frontend.py"]
+    monitoreo["monitoreo.py (Servidor Central)"]
+    db["bd_principal.py (BD Principal)"]
+    
+    client -->|ZMQ REQ/REP| monitoreo
+    monitoreo -->|Consultas SQL| db
 end
 
 %% =======================
-%% FLUJOS DE DATOS
+%% FLUJOS INTER-NODOS (Izquierda a Derecha)
 %% =======================
 
-%% Sensores → Broker (Pub/Sub)
-cam -->|Pub/Sub| broker
-esp -->|Pub/Sub| broker
-gps -->|Pub/Sub| broker
+%% PC1 a PC2
+broker -->|ZMQ PUB/SUB| analitica
 
-%% Broker → Analítica (Pub/Sub)
-broker -->|Pub/Sub| analitica
+%% PC2 a PC3 (Persistencia y Latidos)
+analitica -->|ZMQ PUSH/PULL| db
+monitoreo -.->|Heartbeat PUSH| hc
 
-%% Analítica → Control (Push/Pull)
-analitica -->|Push/Pull| semaforos
-
-%% Analítica → BD Principal (Push/Pull)
-analitica -->|Push/Pull| db
-
-%% Analítica → BD Réplica (Failover)
-analitica -->|Push/Pull / Failover| replica
-
-%% Monitoreo ↔ BD (Req/Rep)
-monitoreo -->|Req/Rep| db
-
-%% Frontend → Monitoreo
-frontend -->|HTTP| monitoreo
-
-%% =======================
-%% ESTILO (OPCIONAL)
-%% =======================
-classDef pc fill:#f5f5f5,stroke:#999,stroke-width:1px;
+%% PC3 a PC2 (Canal de Control Crítico - Línea Sólida)
+monitoreo -->|Órdenes de Emergencia REQ/REP| analitica
 ```
 
 ### Patrones ZeroMQ usados
