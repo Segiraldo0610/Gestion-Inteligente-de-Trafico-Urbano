@@ -167,6 +167,69 @@ def consultar_historico(
     }
 
 
+def consultar_historico_rango(
+    db_path: str,
+    desde: str,
+    hasta: str,
+    interseccion: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Consulta histórico de acciones de semáforo entre dos timestamps ISO 8601.
+    Parámetros:
+      desde / hasta : strings tipo "2026-05-29T08:00:00" o "08:00" (solo hora, fecha hoy)
+      interseccion  : opcional, filtra por intersección.
+    """
+    # Normalizar timestamps: si solo se da HH:MM o HH:MM:SS, completar con fecha de hoy
+    def _normalizar(ts: str) -> str:
+        ts = ts.strip()
+        if len(ts) <= 8:          # solo hora: HH:MM o HH:MM:SS
+            from datetime import date
+            return f"{date.today().isoformat()}T{ts}"
+        return ts
+
+    desde = _normalizar(desde)
+    hasta = _normalizar(hasta)
+
+    with _obtener_conexion(db_path) as conn:
+        cur = conn.cursor()
+        if interseccion:
+            cur.execute(
+                """
+                SELECT interseccion, estado, duracion, motivo, timestamp
+                FROM acciones_semaforo
+                WHERE interseccion = ?
+                  AND timestamp >= ?
+                  AND timestamp <= ?
+                ORDER BY timestamp ASC
+                """,
+                (interseccion, desde, hasta),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT interseccion, estado, duracion, motivo, timestamp
+                FROM acciones_semaforo
+                WHERE timestamp >= ?
+                  AND timestamp <= ?
+                ORDER BY timestamp ASC
+                """,
+                (desde, hasta),
+            )
+        acciones = [
+            {"interseccion": r[0], "estado": r[1], "duracion": r[2],
+             "motivo": r[3], "timestamp": r[4]}
+            for r in cur.fetchall()
+        ]
+
+    return {
+        "desde":    desde,
+        "hasta":    hasta,
+        "filtro":   interseccion or "todas",
+        "total":    len(acciones),
+        "acciones": acciones,
+    }
+
+
 def consultar_estado_general(db_path: str) -> Dict[str, Any]:
     """
     Retorna un resumen general de la base de datos:
